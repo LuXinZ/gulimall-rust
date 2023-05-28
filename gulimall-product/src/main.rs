@@ -1,7 +1,7 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use sea_orm::{Database, DatabaseConnection};
 use gulimall_product::AppState;
-use gulimall_product::router::{info, list};
+use gulimall_product::router::{delete, info, list, list_tree, save};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -21,5 +21,7 @@ async fn main() -> std::io::Result<()> {
 }
 fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(list);
-
+    cfg.service(list_tree);
+    cfg.service(save);
+    cfg.service(delete);
 }

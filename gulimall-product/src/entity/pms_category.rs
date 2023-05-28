@@ -6,6 +6,7 @@ use serde::{Serialize,Deserialize};
 #[sea_orm(table_name = "pms_category")]
 pub struct Model {
     #[sea_orm(primary_key)]
+    #[serde(skip_deserializing)]
     pub cat_id: i64,
     pub name: Option<String>,
     pub parent_cid: Option<i64>,
@@ -16,6 +17,7 @@ pub struct Model {
     pub product_unit: Option<String>,
     pub product_count: Option<i32>,
     #[sea_orm(ignore)]
+    #[serde(skip_deserializing)]
     pub children : Vec<Model>,
 }
 
