@@ -1,10 +1,8 @@
 use actix_web::{get,  web, App, HttpResponse, HttpServer, Responder,post};
-use actix_web::web::to;
 
 use serde::Serialize;
 
 use crate::AppState;
-use crate::entity::pms_category;
 use crate::entity::pms_category::Model;
 use crate::error::{AppError, AppResult, MessageResponse};
 use crate::service::PmsCategoryService;
@@ -19,37 +17,27 @@ pub async fn list(data: web::Data<AppState>) -> AppResult {
 pub async fn list_tree(data: web::Data<AppState>) ->  AppResult {
     let db = &data.db;
     let list_vec = PmsCategoryService::list_with_tree(db).await;
-    match list_vec {
-        Ok(l) => Ok(MessageResponse::new(Some(serde_json::to_value(&l).unwrap()))),
-        Err(e) => Err(AppError::DbError(e))
-    }
+    handle_response(list_vec)
 }
 
 #[get("/info/{cate_id}")]
-pub async fn info(cate_id: web::Path<u32>) ->  AppResult {
-  handle_response(give_err(cate_id.into_inner()))
+pub async fn info(data: web::Data<AppState>,cate_id: web::Path<i64>) ->  AppResult {
+    let one_cate_info = PmsCategoryService::find_by_id(&data.db,cate_id.into_inner()).await;
+    handle_response(one_cate_info)
 
-}
-fn give_err (id:u32) ->Result<String,AppError>{
-    if id > 0 {
-        Ok("Success".into())
-    }else{
-        Err(AppError::Conflict("bux".into()))
-    }
 }
 #[post("/save")]
 pub async fn save(data: web::Data<AppState>, post_form: web::Json<Model>,) -> AppResult{
     let db = &data.db;
-    let form = post_form.into_inner();
-    let res = PmsCategoryService::save(db,form).await;
+    let res = PmsCategoryService::save(db,post_form).await;
     handle_response(res)
 }
 #[get("/update")]
 pub async fn update() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
 }
-#[get("/update_nodes")]
-pub async fn update_nodes() -> impl Responder {
+#[post("/update_nodes")]
+pub async fn update_nodes(data: web::Data<AppState>, post_form: web::Json<Vec<Model>>,) -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
 }
 #[get("/delete/{cate_id}")]
