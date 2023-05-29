@@ -24,4 +24,5 @@ fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(list_tree);
     cfg.service(save);
     cfg.service(delete);
+    cfg.service(info);
 }
